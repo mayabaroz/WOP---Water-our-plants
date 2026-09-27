@@ -1,0 +1,25 @@
+services:
+  wop:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: wop-backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      # Bind-mount the source so edits hot-reload via uvicorn --reload
+      - ./backend:/app
+      # Persist the SQLite DB + uploaded images across restarts
+      - wop-data:/app/data
+    env_file:
+      # Placeholders first — app boots without credentials
+      - ./.env.base44-defaults
+      # Real secrets last — always wins
+      - /run/base44/app.env
+    environment:
+      - WOP_DB_PATH=/app/data/wop.db
+      - WOP_IMAGES_DIR=/app/data/images
+
+volumes:
+  wop-data:

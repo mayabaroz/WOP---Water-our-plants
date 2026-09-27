@@ -1,0 +1,12 @@
+{
+  "previewPort": 3000,
+  "healthPath": "/wop",
+  "startCommand": "docker compose -f docker-compose.base44.yml up -d",
+  "secrets": [
+    {
+      "name": "GEMINI_API_KEY",
+      "description": "Google Gemini API key for AI plant identification (optional — get it from Google AI Studio at https://aistudio.google.com/apikey). Without it, plant identification falls back to a default and the rest of the dashboard works normally.",
+      "requiredAtBoot": false
+    }
+  ]
+}
