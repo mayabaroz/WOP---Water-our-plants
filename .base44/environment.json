@@ -1,0 +1,12 @@
+{
+  "previewPort": 3000,
+  "healthPath": "/wop",
+  "startCommand": "docker compose -f docker-compose.base44.yml up -d",
+  "secrets": [
+    {
+      "name": "GEMINI_API_KEY",
+      "description": "Google Gemini API key used by the plant identifier feature (backend/app/plant_identifier.py). Not required for the app to boot.",
+      "requiredAtBoot": false
+    }
+  ]
+}
