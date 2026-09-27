@@ -1,0 +1,28 @@
+services:
+  wop:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: wop-backend
+    restart: on-failure
+    working_dir: /app
+    volumes:
+      - ./backend/app:/app/app
+      - wop-data:/app/data
+    ports:
+      - "3000:8080"
+    environment:
+      - WOP_DB_PATH=/app/data/wop.db
+      - WOP_IMAGES_DIR=/app/data/images
+    env_file:
+      - /run/base44/app.env
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080", "--reload"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+volumes:
+  wop-data:
