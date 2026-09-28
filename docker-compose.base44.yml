@@ -1,0 +1,30 @@
+services:
+  wop:
+    image: python:3.12-slim
+    working_dir: /app
+    command: >
+      sh -c "pip install --no-cache-dir -q -r requirements.txt &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload --reload-dir app"
+    ports:
+      - "3000:8080"
+    volumes:
+      - ./backend:/app
+      - wop-data:/data
+      - pip-cache:/root/.cache/pip
+    environment:
+      - WOP_DB_PATH=/data/wop.db
+      - WOP_IMAGES_DIR=/data/images
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - /run/base44/app.env
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; urllib.request.urlopen('http://localhost:8080/api/plants', timeout=3); urllib.request.urlopen('http://localhost:8080/wop', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 90s
+
+volumes:
+  wop-data:
+  pip-cache:
