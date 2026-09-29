@@ -1,0 +1,24 @@
+services:
+  wop:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.base44
+    container_name: wop-base44
+    restart: on-failure
+    ports:
+      - "3000:8080"
+    volumes:
+      - ./backend:/app
+    environment:
+      - WOP_DB_PATH=/app/data/wop.db
+      - WOP_IMAGES_DIR=/app/data/images
+    env_file:
+      - ./.env.base44-defaults   # placeholders — app boots without credentials
+      - /run/base44/app.env       # platform secrets — LAST, always wins
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080", "--reload", "--reload-dir", "app"]
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/wop"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
