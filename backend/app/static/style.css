@@ -6,7 +6,7 @@
 /* ─── Design Tokens ──────────────────────────────────────────────── */
 :root {
     /* Base palette (Catppuccin Mocha inspired) */
-    --bg-base:    #0f0f17;
+    --bg-base:    #1a2f5c;
     --bg-surface: #1a1a2e;
     --bg-card:    #1e1e32;
     --bg-hover:   #262640;
@@ -98,7 +98,7 @@ body::before {
     position: sticky;
     top: 0;
     z-index: 100;
-    background: rgba(15, 15, 23, 0.85);
+    background: rgba(26, 47, 92, 0.85);
     backdrop-filter: blur(16px);
     border-bottom: 1px solid var(--border);
 }
@@ -1130,7 +1130,7 @@ form {
 /* ─── Navigation Tabs ────────────────────────────────────────────── */
 .view-tabs-container {
     border-top: 1px solid var(--border-subtle);
-    background: rgba(15, 15, 23, 0.6);
+    background: rgba(26, 47, 92, 0.6);
 }
 
 .view-tabs {
