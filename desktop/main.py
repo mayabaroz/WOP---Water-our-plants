@@ -21,13 +21,13 @@ class WOPApp:
         self.root.title("WOP - Water Our Plants")
         self.root.geometry("600x550")
         self.root.minsize(500, 450)
-        self.root.configure(bg="#1e1e2e")
+        self.root.configure(bg="#1e3a5f")
         
         # Style
         self.style = ttk.Style()
         self.style.theme_use("clam")
-        self.style.configure("TFrame", background="#1e1e2e")
-        self.style.configure("TLabel", background="#1e1e2e", foreground="#cdd6f4", font=("Consolas", 11))
+        self.style.configure("TFrame", background="#1e3a5f")
+        self.style.configure("TLabel", background="#1e3a5f", foreground="#cdd6f4", font=("Consolas", 11))
         self.style.configure("Title.TLabel", font=("Consolas", 16, "bold"), foreground="#89b4fa")
         self.style.configure("Status.TLabel", font=("Consolas", 10))
         self.style.configure("Value.TLabel", font=("Consolas", 14, "bold"), foreground="#a6e3a1")
