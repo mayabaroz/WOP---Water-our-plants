@@ -1,0 +1,35 @@
+services:
+  wop:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.base44
+    container_name: wop-backend
+    restart: on-failure
+    ports:
+      - "3000:8080"
+    volumes:
+      # Bind-mount the source so edits are reflected live
+      - ./backend:/app
+      # Persist SQLite + uploaded images across restarts
+      - wop-data:/app/data
+    environment:
+      - WOP_DB_PATH=/app/data/wop.db
+      - WOP_IMAGES_DIR=/app/data/images
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+    env_file:
+      - /run/base44/app.env
+    command:
+      - sh
+      - -ec
+      - |
+        pip install --no-cache-dir -r requirements.txt
+        exec uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload --reload-dir /app/app
+    healthcheck:
+      test: ["CMD", "curl", "-fs", "http://localhost:8080/wop"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  wop-data:
