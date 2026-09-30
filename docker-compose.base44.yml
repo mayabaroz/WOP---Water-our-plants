@@ -1,0 +1,33 @@
+# Base44 development compose — runs the WOP backend from cloned source
+# with live reload so edits appear without rebuilding the image.
+services:
+  web:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: wop-web
+    restart: on-failure
+    ports:
+      - "3000:8080"
+    volumes:
+      # Live source: edits to backend/app show up immediately with --reload
+      - ./backend:/app
+      # Persist SQLite DB + uploaded images outside the repo bind-mount
+      - wop-data:/app/data
+    environment:
+      - WOP_DB_PATH=/app/data/wop.db
+      - WOP_IMAGES_DIR=/app/data/images
+      # Pass the public host suffix through so the app can reference it if needed
+      - BASE44_PUBLIC_HOST_SUFFIX=${BASE44_PUBLIC_HOST_SUFFIX:-}
+    env_file:
+      - /run/base44/app.env
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080", "--reload", "--reload-dir", "app"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; urllib.request.urlopen('http://localhost:8080/wop').read(); print('ok')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+volumes:
+  wop-data:
