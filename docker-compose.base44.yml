@@ -1,0 +1,37 @@
+services:
+  wop:
+    image: python:3.12-slim
+    container_name: wop-backend
+    restart: on-failure
+    working_dir: /app
+    ports:
+      - "3000:8080"
+    volumes:
+      # Bind-mount the cloned source so edits hot-reload
+      - ./backend:/app
+      # Persist the SQLite DB + uploaded images across restarts
+      - wop_data:/app/data
+    environment:
+      - WOP_DB_PATH=/app/data/wop.db
+      - WOP_IMAGES_DIR=/app/data/images
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      # Pass the platform preview host suffix through to the app (available if needed)
+      - BASE44_PUBLIC_HOST_SUFFIX=${BASE44_PUBLIC_HOST_SUFFIX:-}
+    env_file:
+      - /run/base44/app.env
+    command:
+      - sh
+      - -ec
+      - |
+        apt-get update -qq && apt-get install -y -qq --no-install-recommends bluez libglib2.0-0 >/dev/null 2>&1 || true
+        pip install --no-cache-dir -q -r requirements.txt
+        exec uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload --reload-dir /app/app
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/wop', timeout=3).read()"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+volumes:
+  wop_data:
