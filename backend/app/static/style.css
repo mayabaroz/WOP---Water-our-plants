@@ -5,19 +5,19 @@
 
 /* ─── Design Tokens ──────────────────────────────────────────────── */
 :root {
-    /* Base palette (Catppuccin Mocha inspired) */
-    --bg-base:    #0f0f17;
-    --bg-surface: #1a1a2e;
-    --bg-card:    #1e1e32;
-    --bg-hover:   #262640;
-    --bg-input:   #16162a;
-    --bg-modal:   #1c1c30;
+    /* Base palette — light/white theme */
+    --bg-base:    #ffffff;
+    --bg-surface: #f1f5f9;
+    --bg-card:    #ffffff;
+    --bg-hover:   #f1f5f9;
+    --bg-input:   #f8fafc;
+    --bg-modal:   #ffffff;
 
     /* Text */
-    --text-primary:   #e2e8f0;
-    --text-secondary: #94a3b8;
+    --text-primary:   #1e293b;
+    --text-secondary: #475569;
     --text-muted:     #64748b;
-    --text-heading:   #f1f5f9;
+    --text-heading:   #0f172a;
 
     /* Accent — plant greens */
     --green-primary:  #4ade80;
@@ -37,11 +37,11 @@
     --amber-glow: rgba(251, 191, 36, 0.15);
 
     /* Borders & shadows */
-    --border:        rgba(148, 163, 184, 0.08);
-    --border-subtle: rgba(148, 163, 184, 0.05);
-    --shadow-sm:     0 1px 3px rgba(0,0,0,0.4);
-    --shadow-md:     0 4px 16px rgba(0,0,0,0.5);
-    --shadow-lg:     0 8px 32px rgba(0,0,0,0.6);
+    --border:        rgba(0, 0, 0, 0.08);
+    --border-subtle: rgba(0, 0, 0, 0.05);
+    --shadow-sm:     0 1px 3px rgba(0,0,0,0.08);
+    --shadow-md:     0 4px 16px rgba(0,0,0,0.1);
+    --shadow-lg:     0 8px 32px rgba(0,0,0,0.12);
     --shadow-glow-green: 0 0 20px rgba(74, 222, 128, 0.1);
 
     /* Radii */
@@ -98,7 +98,7 @@ body::before {
     position: sticky;
     top: 0;
     z-index: 100;
-    background: rgba(15, 15, 23, 0.85);
+    background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(16px);
     border-bottom: 1px solid var(--border);
 }
@@ -727,7 +727,7 @@ body::before {
 .chart-period-tabs {
     display: flex;
     gap: 0.25rem;
-    background: var(--bg-base);
+    background: var(--bg-surface);
     border-radius: var(--radius-sm);
     padding: 3px;
 }
@@ -1119,18 +1119,18 @@ form {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: rgba(148, 163, 184, 0.15);
+    background: rgba(100, 116, 139, 0.25);
     border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(148, 163, 184, 0.25);
+    background: rgba(100, 116, 139, 0.4);
 }
 
 /* ─── Navigation Tabs ────────────────────────────────────────────── */
 .view-tabs-container {
     border-top: 1px solid var(--border-subtle);
-    background: rgba(15, 15, 23, 0.6);
+    background: rgba(255, 255, 255, 0.6);
 }
 
 .view-tabs {
