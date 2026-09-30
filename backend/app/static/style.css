@@ -6,7 +6,7 @@
 /* ─── Design Tokens ──────────────────────────────────────────────── */
 :root {
     /* Base palette — light/white theme */
-    --bg-base:    #ffffff;
+    --bg-base:    #000000;
     --bg-surface: #f1f5f9;
     --bg-card:    #ffffff;
     --bg-hover:   #f1f5f9;
