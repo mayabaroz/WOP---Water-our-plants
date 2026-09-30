@@ -7,6 +7,7 @@ let plants = [];
 let currentPlant = null;
 let currentChart = null;
 let ws = null;
+let addMode = 'ai'; // 'ai' or 'manual'
 
 // ─── DOM Elements ──────────────────────────────────────────────────
 const els = {
@@ -29,6 +30,17 @@ const els = {
     uploadZone: document.getElementById('image-upload-zone'),
     btnScanBle: document.getElementById('btn-scan-ble'),
     bleScanResults: document.getElementById('ble-scan-results'),
+
+    // Add-Plant mode toggle (AI vs manual)
+    modeBtnAi: document.getElementById('mode-btn-ai'),
+    modeBtnManual: document.getElementById('mode-btn-manual'),
+    aiModeFields: document.getElementById('ai-mode-fields'),
+    manualModeFields: document.getElementById('manual-mode-fields'),
+    manualImageInput: document.getElementById('manual-image'),
+    manualImagePreview: document.getElementById('manual-image-preview'),
+    manualUploadPlaceholder: document.getElementById('manual-upload-placeholder'),
+    manualUploadZone: document.getElementById('manual-image-upload-zone'),
+    nameHint: document.getElementById('name-hint'),
     
     // Detail View Elements
     detailImage: document.getElementById('detail-image'),
@@ -110,6 +122,27 @@ function setupEventListeners() {
         if (e.dataTransfer.files.length) {
             els.imageInput.files = e.dataTransfer.files;
             handleImageSelect();
+        }
+    });
+
+    // Add-Plant mode toggle
+    els.modeBtnAi.addEventListener('click', () => setAddMode('ai'));
+    els.modeBtnManual.addEventListener('click', () => setAddMode('manual'));
+
+    // Manual image upload UX
+    els.manualUploadZone.addEventListener('click', () => els.manualImageInput.click());
+    els.manualImageInput.addEventListener('change', handleManualImageSelect);
+    els.manualUploadZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        els.manualUploadZone.classList.add('dragging');
+    });
+    els.manualUploadZone.addEventListener('dragleave', () => els.manualUploadZone.classList.remove('dragging'));
+    els.manualUploadZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        els.manualUploadZone.classList.remove('dragging');
+        if (e.dataTransfer.files.length) {
+            els.manualImageInput.files = e.dataTransfer.files;
+            handleManualImageSelect();
         }
     });
     
@@ -679,12 +712,27 @@ function showAddModal() {
     els.imagePreview.style.display = 'none';
     els.imagePreview.src = '';
     els.uploadPlaceholder.style.display = 'flex';
+    els.manualImagePreview.style.display = 'none';
+    els.manualImagePreview.src = '';
+    els.manualUploadPlaceholder.style.display = 'flex';
     els.bleScanResults.style.display = 'none';
+    setAddMode('ai');
     els.addModal.style.display = 'flex';
 }
 
 function hideAddModal() {
     els.addModal.style.display = 'none';
+}
+
+function setAddMode(mode) {
+    addMode = mode;
+    const isManual = mode === 'manual';
+
+    els.modeBtnAi.classList.toggle('active', !isManual);
+    els.modeBtnManual.classList.toggle('active', isManual);
+    els.aiModeFields.style.display = isManual ? 'none' : 'block';
+    els.manualModeFields.style.display = isManual ? 'block' : 'none';
+    els.nameHint.textContent = isManual ? '(optional)' : '(optional — AI will suggest)';
 }
 
 function handleImageSelect() {
@@ -696,6 +744,18 @@ function handleImageSelect() {
             els.uploadPlaceholder.style.display = 'none';
         };
         reader.readAsDataURL(els.imageInput.files[0]);
+    }
+}
+
+function handleManualImageSelect() {
+    if (els.manualImageInput.files && els.manualImageInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            els.manualImagePreview.src = e.target.result;
+            els.manualImagePreview.style.display = 'block';
+            els.manualUploadPlaceholder.style.display = 'none';
+        };
+        reader.readAsDataURL(els.manualImageInput.files[0]);
     }
 }
 
@@ -741,15 +801,39 @@ async function handleAddPlantSubmit(e) {
     e.preventDefault();
     
     const formData = new FormData();
-    if (els.imageInput.files.length > 0) {
-        formData.append('image', els.imageInput.files[0]);
-    }
-    
     const name = document.getElementById('plant-name').value;
-    if (name) formData.append('name', name);
-    
     const ble = document.getElementById('plant-ble-address').value;
+    if (name) formData.append('name', name);
     if (ble) formData.append('ble_address', ble);
+
+    if (addMode === 'manual') {
+        // Manual entry — send the care data the user filled in (no AI).
+        if (els.manualImageInput.files.length > 0) {
+            formData.append('image', els.manualImageInput.files[0]);
+        }
+        const species = document.getElementById('manual-species').value;
+        const moistMin = document.getElementById('manual-moisture-min').value;
+        const moistMax = document.getElementById('manual-moisture-max').value;
+        const humMin = document.getElementById('manual-humidity-min').value;
+        const humMax = document.getElementById('manual-humidity-max').value;
+        const light = document.getElementById('manual-light').value;
+        const watering = document.getElementById('manual-watering').value;
+        const notes = document.getElementById('manual-notes').value;
+
+        if (species) formData.append('species', species);
+        if (moistMin !== '') formData.append('ideal_moisture_min', moistMin);
+        if (moistMax !== '') formData.append('ideal_moisture_max', moistMax);
+        if (humMin !== '') formData.append('ideal_humidity_min', humMin);
+        if (humMax !== '') formData.append('ideal_humidity_max', humMax);
+        if (light) formData.append('light_preference', light);
+        if (watering) formData.append('watering_frequency', watering);
+        if (notes) formData.append('notes', notes);
+    } else {
+        // AI identify mode — upload photo for Gemini.
+        if (els.imageInput.files.length > 0) {
+            formData.append('image', els.imageInput.files[0]);
+        }
+    }
     
     const btnSubmit = document.getElementById('btn-submit-plant');
     const spinner = document.getElementById('submit-spinner');

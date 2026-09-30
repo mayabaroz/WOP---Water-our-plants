@@ -1,0 +1,33 @@
+services:
+  wop:
+    # Plain runtime base image — app runs from the bind-mounted source so edits
+    # appear via live reload without rebuilding an image.
+    image: python:3.12-slim
+    working_dir: /app
+    restart: on-failure
+    ports:
+      - "3000:8080"
+    volumes:
+      # Mount the backend source so edits hot-reload.
+      - ./backend/app:/app/app
+      - ./backend/requirements.txt:/app/requirements.txt
+      # Persist SQLite DB + uploaded images across container restarts.
+      - wop-data:/app/data
+    environment:
+      - WOP_DB_PATH=/app/data/wop.db
+      - WOP_IMAGES_DIR=/app/data/images
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      # Pass the public host suffix through to the app if needed later.
+      - BASE44_PUBLIC_HOST_SUFFIX=${BASE44_PUBLIC_HOST_SUFFIX:-}
+    env_file:
+      - /run/base44/app.env
+    command: ["sh", "-ec", "pip install --no-cache-dir -r requirements.txt && exec uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload --reload-dir /app/app"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/api/plants', timeout=5).read()"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  wop-data:

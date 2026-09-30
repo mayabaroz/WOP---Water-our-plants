@@ -88,16 +88,30 @@ async def create_plant(
     image: Optional[UploadFile] = File(None),
     name: Optional[str] = Form(None),
     ble_address: Optional[str] = Form(None),
+    # Manual-entry fields (used when the user fills in care data themselves
+    # instead of relying on Gemini AI identification).
+    species: Optional[str] = Form(None),
+    ideal_moisture_min: Optional[int] = Form(None),
+    ideal_moisture_max: Optional[int] = Form(None),
+    ideal_humidity_min: Optional[int] = Form(None),
+    ideal_humidity_max: Optional[int] = Form(None),
+    light_preference: Optional[str] = Form(None),
+    watering_frequency: Optional[str] = Form(None),
+    notes: Optional[str] = Form(None),
 ):
     """
-    Add a new plant. Optionally upload a photo for AI identification.
-    If an image is provided, Gemini AI will identify the plant and
-    pre-fill care information.
+    Add a new plant.
+
+    Two modes:
+      1. AI identify — upload a photo and Gemini identifies the plant and
+         pre-fills care information.
+      2. Manual entry — skip the photo and provide the care details yourself
+         (for special/rare plants where you know the requirements better).
     """
     image_path = None
     ai_data = {}
 
-    # Save uploaded image
+    # Save uploaded image (only present in AI-identify mode)
     if image and image.filename:
         ext = Path(image.filename).suffix.lower() or ".jpg"
         filename = f"{uuid.uuid4().hex}{ext}"
@@ -117,19 +131,27 @@ async def create_plant(
     # Use AI name if user didn't provide one
     plant_name = name or ai_data.pop("common_name", "New Plant")
 
-    # Merge AI care data with defaults
+    # Manual-entry values take precedence; fall back to AI data, then defaults.
+    def merge(manual_val, ai_val, default=None):
+        """Manual user input wins, then AI, then the default."""
+        if manual_val is not None:
+            return manual_val
+        if ai_val is not None:
+            return ai_val
+        return default
+
     plant = await db.create_plant(
         name=plant_name,
-        species=ai_data.get("scientific_name"),
+        species=merge(species, ai_data.get("scientific_name")),
         image_path=image_path,
         ble_address=ble_address,
-        ideal_moisture_min=ai_data.get("ideal_moisture_min", 30),
-        ideal_moisture_max=ai_data.get("ideal_moisture_max", 70),
-        ideal_humidity_min=ai_data.get("ideal_humidity_min"),
-        ideal_humidity_max=ai_data.get("ideal_humidity_max"),
-        light_preference=ai_data.get("light_preference"),
-        watering_frequency=ai_data.get("watering_frequency"),
-        notes=ai_data.get("care_notes"),
+        ideal_moisture_min=merge(ideal_moisture_min, ai_data.get("ideal_moisture_min"), 30),
+        ideal_moisture_max=merge(ideal_moisture_max, ai_data.get("ideal_moisture_max"), 70),
+        ideal_humidity_min=merge(ideal_humidity_min, ai_data.get("ideal_humidity_min")),
+        ideal_humidity_max=merge(ideal_humidity_max, ai_data.get("ideal_humidity_max")),
+        light_preference=merge(light_preference, ai_data.get("light_preference")),
+        watering_frequency=merge(watering_frequency, ai_data.get("watering_frequency")),
+        notes=merge(notes, ai_data.get("care_notes")),
     )
 
     return await _plant_to_response(plant)

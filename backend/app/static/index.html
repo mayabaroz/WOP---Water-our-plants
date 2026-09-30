@@ -177,20 +177,97 @@
                 <button class="btn btn-ghost modal-close" id="modal-close">&times;</button>
             </div>
             <form id="add-plant-form" enctype="multipart/form-data">
+                <!-- Mode toggle: AI identify vs manual entry -->
                 <div class="form-group">
-                    <label for="plant-image">Plant Photo</label>
-                    <div class="image-upload" id="image-upload-zone">
-                        <input type="file" id="plant-image" name="image" accept="image/*" hidden>
-                        <div class="upload-placeholder" id="upload-placeholder">
-                            <span class="upload-icon">📸</span>
-                            <p>Click or drag a photo</p>
-                            <p class="upload-hint">AI will identify the plant automatically</p>
-                        </div>
-                        <img id="image-preview" src="" alt="Preview" class="image-preview" style="display:none;">
+                    <div class="add-mode-toggle">
+                        <button type="button" class="add-mode-btn active" data-mode="ai" id="mode-btn-ai">
+                            <span class="add-mode-icon">📸</span>
+                            <span class="add-mode-label">AI Identify</span>
+                            <span class="add-mode-desc">Upload a photo, Gemini fills the care data</span>
+                        </button>
+                        <button type="button" class="add-mode-btn" data-mode="manual" id="mode-btn-manual">
+                            <span class="add-mode-icon">✍️</span>
+                            <span class="add-mode-label">Manual Entry</span>
+                            <span class="add-mode-desc">For special plants — enter care data yourself</span>
+                        </button>
                     </div>
                 </div>
+
+                <!-- AI Identify mode fields -->
+                <div id="ai-mode-fields">
+                    <div class="form-group">
+                        <label for="plant-image">Plant Photo</label>
+                        <div class="image-upload" id="image-upload-zone">
+                            <input type="file" id="plant-image" name="image" accept="image/*" hidden>
+                            <div class="upload-placeholder" id="upload-placeholder">
+                                <span class="upload-icon">📸</span>
+                                <p>Click or drag a photo</p>
+                                <p class="upload-hint">AI will identify the plant automatically</p>
+                            </div>
+                            <img id="image-preview" src="" alt="Preview" class="image-preview" style="display:none;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Manual Entry mode fields -->
+                <div id="manual-mode-fields" style="display:none;">
+                    <div class="manual-banner">
+                        <span class="manual-banner-icon">🌿</span>
+                        <span>Enter the care requirements for your special plant. You know it better than the AI does!</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="manual-image">Plant Photo (optional)</label>
+                        <div class="image-upload" id="manual-image-upload-zone">
+                            <input type="file" id="manual-image" name="manual_image" accept="image/*" hidden>
+                            <div class="upload-placeholder" id="manual-upload-placeholder">
+                                <span class="upload-icon">📸</span>
+                                <p>Click or drag a photo (optional)</p>
+                                <p class="upload-hint">Just for your records — no AI identification</p>
+                            </div>
+                            <img id="manual-image-preview" src="" alt="Preview" class="image-preview" style="display:none;">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="manual-species">Species / Plant Name</label>
+                        <input type="text" id="manual-species" name="manual_species" placeholder="e.g. Variegated Monstera Albo">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="manual-moisture-min">Ideal Moisture Min %</label>
+                            <input type="number" id="manual-moisture-min" name="manual_moisture_min" min="0" max="100" placeholder="30">
+                        </div>
+                        <div class="form-group">
+                            <label for="manual-moisture-max">Ideal Moisture Max %</label>
+                            <input type="number" id="manual-moisture-max" name="manual_moisture_max" min="0" max="100" placeholder="70">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="manual-humidity-min">Ideal Humidity Min %</label>
+                            <input type="number" id="manual-humidity-min" name="manual_humidity_min" min="0" max="100" placeholder="optional">
+                        </div>
+                        <div class="form-group">
+                            <label for="manual-humidity-max">Ideal Humidity Max %</label>
+                            <input type="number" id="manual-humidity-max" name="manual_humidity_max" min="0" max="100" placeholder="optional">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="manual-light">Light Preference</label>
+                        <input type="text" id="manual-light" name="manual_light" placeholder="e.g. bright indirect, full sun, partial shade">
+                    </div>
+                    <div class="form-group">
+                        <label for="manual-watering">Watering Frequency</label>
+                        <input type="text" id="manual-watering" name="manual_watering" placeholder="e.g. every 2-3 days, when top inch is dry">
+                    </div>
+                    <div class="form-group">
+                        <label for="manual-notes">Care Notes</label>
+                        <textarea id="manual-notes" name="manual_notes" rows="3" placeholder="Key care tips for this plant..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Shared fields -->
                 <div class="form-group">
-                    <label for="plant-name">Name (optional — AI will suggest)</label>
+                    <label for="plant-name">Name <span class="label-hint" id="name-hint">(optional — AI will suggest)</span></label>
                     <input type="text" id="plant-name" name="name" placeholder="e.g. Kitchen Basil">
                 </div>
                 <div class="form-group">
