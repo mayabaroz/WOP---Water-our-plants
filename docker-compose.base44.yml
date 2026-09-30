@@ -1,0 +1,30 @@
+services:
+  wop:
+    image: python:3.12-slim
+    working_dir: /app
+    restart: on-failure
+    ports:
+      - "3000:8080"
+    volumes:
+      # Bind-mount the backend source so edits are reflected live
+      - ./backend:/app
+      # Persist SQLite DB + uploaded images across restarts
+      - wop_data:/app/data
+    environment:
+      - WOP_DB_PATH=/app/data/wop.db
+      - WOP_IMAGES_DIR=/app/data/images
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - ./.env.base44-defaults
+      - /run/base44/app.env
+    command: ["sh", "-ec", "pip install --no-cache-dir -r requirements.txt && exec python -m uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload --reload-dir /app/app"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; urllib.request.urlopen('http://localhost:8080/wop', timeout=5); sys.exit(0)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 25s
+
+volumes:
+  wop_data:
