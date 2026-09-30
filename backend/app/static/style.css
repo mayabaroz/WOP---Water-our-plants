@@ -6,7 +6,7 @@
 /* ─── Design Tokens ──────────────────────────────────────────────── */
 :root {
     /* Base palette (Catppuccin Mocha inspired) */
-    --bg-base:    #0f0f17;
+    --bg-base:    #ffffff;
     --bg-surface: #1a1a2e;
     --bg-card:    #1e1e32;
     --bg-hover:   #262640;
